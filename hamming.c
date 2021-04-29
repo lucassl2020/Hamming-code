@@ -1,138 +1,129 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "listabit.h"
+#include "lerPalavra.h"
 
 #define TRUE 1
 #define FALSE 0
 
+#define GERAR_PALAVRA 1
+#define DIGITAR_PALAVRA 2
+#define GERAR_CODIGO 3
+#define AVALIAR_CODIGO 4
+#define MOSTRAR_PALAVRA 5
+#define MOSTRAR_CODIGO 6
+#define SAIR 0
+
 // Fazer loop pra corrigir todos os erros com hamming
 
-void enter_para_fechar();
-char *ler_palavra(const char *msg);
-int palavra_invalida(char *palavra);
-char *processo_leitura_palavra(const char *msg1, const char *msg2);
-int palavras_tamanho_igual(char *palavra1, char *palavra2);
-int converte_char_para_bit(char caracter);
+/*
+O GERADOR DO CÓDIGO TEM QUE SER CAPAZ DE PEGAR UMA PALAVRA
+BINÁRIA E GERAR A CODIFICAÇÃO DE HAMMING PARA TRANSMISSÃO DA
+REFERIDA PALAVRA.
+*/
+
+int menu_opcoes();
 
 
 int main(){
 
-	char *palavra_enviada = NULL,
-		 *palavra_recebida = NULL;
-	listaBits *dado_enviado = criar_listaBits(),
-			  *dado_recebido = criar_listaBits();
-	int i;
+	char *palavra_enviada = NULL;
 
-	palavra_enviada = processo_leitura_palavra("Digite o dado enviado(Ex: 1010011): ", "Palavra invalida, digite novamente: ");
+	listaBits *dado_enviado = criar_listaBits();
 
-	palavra_recebida = processo_leitura_palavra("Digite o dado recebido(Ex: 1010011): ", "Palavra invalida, digite novamente: ");
+	int i, qtd_bits, opcao;
+
+
+	while(TRUE){
+
+		opcao = menu_opcoes();
+
+		if(opcao == SAIR){
+
+			break;	
+
+		}else{
+
+			if(opcao == GERAR_PALAVRA){
+
+				desalocar_listaBits(dado_enviado);
+			
+				dado_enviado = criar_listaBits();
+
+
+				printf("Quantidade de bits(4-256): "); scanf(" %d", &qtd_bits);
+				while(qtd_bits < 4 || 256 < qtd_bits){
+					printf("Fora do intervalo\nDigite um numero de 4 a 256: "); scanf(" %d", &qtd_bits);
+				}
+				
+				for(i=0; i<qtd_bits; i++){
+					dado_enviado = adicionar_bit(dado_enviado, rand()%2);
+				}
+
+
+				printf("\n");
+
+			}else if(opcao == DIGITAR_PALAVRA){
+
+				desalocar_listaBits(dado_enviado);
+			
+				dado_enviado = criar_listaBits();
+
+
+				palavra_enviada = processo_leitura_palavra("Palavra que sera enviada(Ex: 1010011): ", "Palavra invalida, digite novamente: ");
+				while(tamanho_palavra(palavra_enviada) < 4 || 256 < tamanho_palavra(palavra_enviada)){
+					palavra_enviada = processo_leitura_palavra("Tamanho invalido\nDigite a palavra novamente: ", "Palavra invalida, digite novamente: ");
+				}
+
+				for(i=0; palavra_enviada[i]!=0; i++){
+					dado_enviado = adicionar_bit(dado_enviado, converte_char_para_bit(palavra_enviada[i]));
+				}
+
+
+				free(palavra_enviada);
+
+				printf("\n");
+				
+			}else if(opcao == GERAR_CODIGO){
+				
+			}else if(opcao == AVALIAR_CODIGO){
+				
+			}else if(opcao == MOSTRAR_PALAVRA){
+
+				printf("Palavra atual: ");
+				print_listaBits(dado_enviado);
+
+			}else if(opcao == MOSTRAR_CODIGO){
+				
+			}
+
+		}
+
+	}
 	
-	while(palavras_tamanho_igual(palavra_enviada, palavra_recebida) == FALSE){
-		printf("Os dados possuem tamanhos diferentes\n");
 
-		palavra_enviada = processo_leitura_palavra("Digite novamente o dado enviado: ", "Palavra invalida, digite novamente: ");
-
-		palavra_recebida = processo_leitura_palavra("Digite novamente o dado recebido: ", "Palavra invalida, digite novamente: ");
-	}
-
-	for(i=0; palavra_enviada[i]!=0; i++){
-		dado_enviado = adicionar_bit(dado_enviado, converte_char_para_bit(palavra_enviada[i]));
-		dado_recebido = adicionar_bit(dado_recebido, converte_char_para_bit(palavra_recebida[i]));
-	}
-
-	print_listaBits(dado_enviado);
-	print_listaBits(dado_recebido);
-
-
-	free(palavra_enviada);
-	free(palavra_recebida);
 	desalocar_listaBits(dado_enviado);
-	desalocar_listaBits(dado_recebido);
-
-	enter_para_fechar();
 
 	return 0;
 }
 
 
-void enter_para_fechar(){
+int menu_opcoes(){
 
-	printf("Digite enter para fechar\n");
-	setbuf(stdin, NULL);
-	getchar();
+	int opcao;
 
-}
-
-char *ler_palavra(const char *msg){
-
-	char *palavra = (char *)malloc(sizeof(char));
-	int i=0;
-
-	setbuf(stdin, NULL);
-
-	printf("%s", msg);
-	while((palavra[i] = getchar()) != '\n'){
-		i++;
- 		palavra = (char *)realloc(palavra, sizeof(char) * (i + 1));
-	}
-	palavra[i] = 0;
-
-	return palavra;
-
-}
-
-int palavra_invalida(char *palavra){
-
-	int i=0;
-
-	while(palavra[i] != 0){
-		if(palavra[i] != '0' && palavra[i] != '1'){
-			return TRUE;
-		}
-
-		i++;
-	}
-
-	return FALSE;
-
-}
-
-char *processo_leitura_palavra(const char *msg1, const char *msg2){
-
-	char *palavra = NULL;
-
-	palavra = ler_palavra(msg1);
-
-	while(palavra_invalida(palavra)){
-		palavra = ler_palavra(msg2);
-	}
-
+	printf("=-=-=-=-=-=-=-=-=-=-=-\n");
+	printf("1 - Gerar palavra\n");
+	printf("2 - Digitar palavra\n");
+	printf("3 - Gerar codigo hamming\n");
+	printf("4 - Avaliar codigo hamming\n");
+	printf("5 - Mostrar palavra atual\n");
+	printf("6 - Mostrar codigo hamming atual\n");
+	printf("0 - Sair\n");
+	printf("\n");
+	printf("Opcao: "); scanf(" %d", &opcao);
 	printf("\n");
 
-	return palavra;
-
-}
-
-int palavras_tamanho_igual(char *palavra1, char *palavra2){
-
-	int i=0;
-	while(palavra1[i] != 0 && palavra2[i] != 0){
-		i++;
-	}
-
-	if(palavra1[i] == 0 && palavra2[i] == 0){
-		return TRUE;
-	}
-
-	return FALSE;
-
-}
-
-int converte_char_para_bit(char caracter){
-
-	if(caracter == '0')
-		return 0;
-
-	return 1;
+	return opcao;
 
 }

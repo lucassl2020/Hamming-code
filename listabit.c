@@ -50,9 +50,8 @@ int tamanho_listaBits(listaBits * lista){
 void desalocar_listaBits(listaBits * lista){
 
 	if(lista != NULL){
-		if(lista->prox != NULL)
-			desalocar_listaBits(lista->prox);
-			
+		desalocar_listaBits(lista->prox);
+
 		free(lista);
 	}
 
@@ -60,13 +59,11 @@ void desalocar_listaBits(listaBits * lista){
 
 void print_listaBits(listaBits * lista){
 
-	if(lista != NULL){
-		while(lista->prox != NULL){
-			printf("%d ", lista->bit);
-			lista = lista->prox;
-		}
-
-		printf("%d\n", lista->bit);
+	while(lista != NULL){
+		printf("%d", lista->bit);
+		lista = lista->prox;
 	}
+
+	printf("\n");
 
 }
