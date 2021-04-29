@@ -1,3 +1,2 @@
-hamming.o
-listabit.o
+*.o
 main.exe
