@@ -3,22 +3,27 @@
 #include "listabit.h"
 
 #define PRIMEIRO_INDICE 1
+#define TRUE 1
+#define FALSE 0
 
 
-int *decimal_para_binario_inv(int numero){
+indiceBinInv decimal_para_binario_inv(int numero){
 
-	int *vetor = (int *)malloc(sizeof(int)),
-		i = 0; 
+	indiceBinInv indice_bin_inv;
+	int i = 0; 
 
-	vetor[i++] = numero % 2;
+	indice_bin_inv.vetor = (int *)malloc(sizeof(int));
+
+	indice_bin_inv.vetor[i++] = numero % 2;
 
 	while(numero > 1){
 		numero /= 2;
-		vetor = (int *)realloc(vetor, sizeof(int) * (i + 1));
-		vetor[i++] = numero % 2;
+		indice_bin_inv.vetor = (int *)realloc(indice_bin_inv.vetor, sizeof(int) * (i + 1));
+		indice_bin_inv.vetor[i++] = numero % 2;
 	}
+	indice_bin_inv.tamanho = i;
 
-	return vetor;
+	return indice_bin_inv;
 
 }
 
@@ -39,6 +44,7 @@ listaBits *adicionar_bit(listaBits * lista, int bit){
 
 		lista->bit = bit;
 		lista->indice_binario_inv = decimal_para_binario_inv(indice);
+		lista->tem_erro = FALSE;
 		lista->prox = NULL;
 	}else{
 		aux = lista;
@@ -52,6 +58,7 @@ listaBits *adicionar_bit(listaBits * lista, int bit){
 
 		aux->prox->bit = bit;
 		aux->prox->indice_binario_inv = decimal_para_binario_inv(++indice);
+		aux->prox->tem_erro = FALSE;
 		aux->prox->prox = NULL;
 	}
 
@@ -76,7 +83,7 @@ void desalocar_listaBits(listaBits * lista){
 
 	if(lista != NULL){
 		desalocar_listaBits(lista->prox);
-		free(lista->indice_binario_inv);
+		free(lista->indice_binario_inv.vetor);
 		free(lista);
 	}
 
@@ -84,8 +91,15 @@ void desalocar_listaBits(listaBits * lista){
 
 void print_listaBits(listaBits * lista){
 
+	int i = 1;
+
+	printf("\t[INDICE] - BIT\n\n");
 	while(lista != NULL){
-		printf("%d", lista->bit);
+		printf("\t[%3d] - %d", i++, lista->bit);
+		if(lista->tem_erro == TRUE){
+			printf(" [BIT COM ERRO]");
+		}
+		printf("\n");
 		lista = lista->prox;
 	}
 

@@ -2,15 +2,23 @@
 #define LISTABIT_H
 
 
+struct indice_binario_invertido{
+	int *vetor;
+	int tamanho;
+};
+
 struct lista_bits{
 	int bit;
-	int *indice_binario_inv;
+	int tem_erro;
+	struct indice_binario_invertido indice_binario_inv;
 	struct lista_bits *prox;
 };
 
+
+typedef struct indice_binario_invertido indiceBinInv;
 typedef struct lista_bits listaBits;
 
-int *decimal_para_binario_inv(int numero);
+indiceBinInv decimal_para_binario_inv(int numero);
 
 listaBits *criar_listaBits();
 listaBits *adicionar_bit(listaBits * lista, int bit);

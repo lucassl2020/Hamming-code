@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <math.h>
 #include "listabit.h"
 #include "lerPalavra.h"
@@ -18,21 +19,14 @@
 #define VOLTAR 5
 
 
-// Fazer loop pra corrigir todos os erros com hamming
-
-/*
-O GERADOR DO CÓDIGO TEM QUE SER CAPAZ DE PEGAR UMA PALAVRA
-BINÁRIA E GERAR A CODIFICAÇÃO DE HAMMING PARA TRANSMISSÃO DA
-REFERIDA PALAVRA.
-*/
-
 int primeiro_menu();
 listaBits *gerar_palavra(listaBits *dado_enviado);
 listaBits *digitar_palavra(listaBits *dado_enviado);
 
-listaBits *gerar_codigo(listaBits *dado_enviado);
-
 int segundo_menu();
+listaBits *gerar_codigo(listaBits *dado_enviado);
+void avaliar_codigo(listaBits *codigo_hamming);
+void inserir_erro_codigo(listaBits *codigo_hamming);
 
 
 int main(){
@@ -42,8 +36,11 @@ int main(){
 
 	int opcao;
 
+	srand(time(NULL));
 
 	while(TRUE){
+
+		setbuf(stdin, NULL);
 
 		opcao = primeiro_menu();
 
@@ -65,7 +62,7 @@ int main(){
 
 			desalocar_listaBits(codigo_hamming);
 			codigo_hamming = gerar_codigo(dado_enviado);
-			printf("CODIGO HAMMING GERADO: ");
+			printf("CODIGO HAMMING GERADO:\n");
 			print_listaBits(codigo_hamming);
 
 
@@ -74,21 +71,35 @@ int main(){
 				opcao = segundo_menu();
 
 				if(opcao == AVALIAR_CODIGO_COM_ERRO){
-					
 
+					printf("CODIGO ENVIADO:\n");
+					print_listaBits(codigo_hamming);
+
+					inserir_erro_codigo(codigo_hamming);
+
+					printf("CODIGO RECEBIDO:\n");
+					print_listaBits(codigo_hamming);
+					
+					avaliar_codigo(codigo_hamming);
 
 				}else if(opcao == CODIGO_SEM_ERRO_AVALIAR){
 
-					
+					printf("CODIGO ENVIADO:\n");
+					print_listaBits(codigo_hamming);
 
+					printf("CODIGO RECEBIDO:\n");
+					print_listaBits(codigo_hamming);
+
+					avaliar_codigo(codigo_hamming);
+					
 				}else if(opcao == MOSTRAR_PALAVRA){
 
-					printf("Palavra: ");
+					printf("Palavra:\n");
 					print_listaBits(dado_enviado);
 
 				}else if(opcao == MOSTRAR_CODIGO){
 
-					printf("Codigo Hamming: ");
+					printf("Codigo Hamming:\n");
 					print_listaBits(codigo_hamming);
 					
 				}else if(opcao == VOLTAR){
@@ -233,14 +244,16 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 		aux = codigo_hamming;
 		while(aux != NULL){
 
-			if(aux->indice_binario_inv[expoente] == 1 && aux->bit != -1){
-				if(valor_do_x == -1){
-					valor_do_x = aux->bit;
-				}else{
-					if(valor_do_x == aux->bit){
-						valor_do_x = 0;
+			if(aux->indice_binario_inv.tamanho > expoente){
+				if(aux->indice_binario_inv.vetor[expoente] == 1 && aux->bit != -1){
+					if(valor_do_x == -1){
+						valor_do_x = aux->bit;
 					}else{
-						valor_do_x = 1;
+						if(valor_do_x == aux->bit){
+							valor_do_x = 0;
+						}else{
+							valor_do_x = 1;
+						}
 					}
 				}
 			}
@@ -261,5 +274,109 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 	}
 
 	return codigo_hamming;
+
+}
+
+void avaliar_codigo(listaBits *codigo_hamming){
+
+	int expoente = 0,
+		tam_dado = tamanho_listaBits(codigo_hamming),
+		cont,
+		*indice_erro = NULL,
+		i, 
+		flag = FALSE;
+
+	listaBits *aux;
+
+	while(pow(2, expoente) < tam_dado){
+
+		cont = 0;
+
+		aux = codigo_hamming;
+		while(aux != NULL){
+			if(aux->indice_binario_inv.tamanho > expoente){
+				if(aux->indice_binario_inv.vetor[expoente] == 1){
+					cont += aux->bit;
+				}
+			}
+
+			aux = aux->prox;
+		}
+
+		indice_erro = (int *)realloc(indice_erro, sizeof(int) * (expoente + 1));
+		indice_erro[expoente] = cont % 2;
+
+		expoente++;
+	}
+
+	cont = 0;
+	printf("BINARIOS DA PARAIDADE:");
+	for(i=0; i<expoente; i++){
+		cont += indice_erro[i];
+		printf(" [%d]", indice_erro[i]);
+	}
+	printf("\n\n");
+
+	if(cont > 0){
+		printf("CORRIGINDO ERRO\n\n");
+
+		aux = codigo_hamming;
+		while(aux != NULL){
+			flag = TRUE;
+			for(i=0; i<expoente; i++){
+				if(aux->indice_binario_inv.tamanho > i){
+					if(indice_erro[i] != aux->indice_binario_inv.vetor[i]){
+						flag = FALSE;
+						break;
+					}
+				}else{
+					if(indice_erro[i] != 0){
+						flag = FALSE;
+						break;
+					}
+				}
+			}	
+
+			if(flag == TRUE){
+				break;
+			}
+			aux = aux->prox;
+		}
+
+		if(aux->bit == 0){
+			aux->bit = 1;
+		}else{
+			aux->bit = 0;
+		}
+
+		aux->tem_erro = FALSE;
+		
+		printf("CODIGO COM ERRO CORRIGIDO:\n");
+		print_listaBits(codigo_hamming);
+	}else{
+		printf("CODIGO SEM ERRO\n");
+	}
+
+	printf("\n");
+
+	free(indice_erro);
+	
+}
+
+void inserir_erro_codigo(listaBits *codigo_hamming){
+
+	int indice_sorteado = rand() % tamanho_listaBits(codigo_hamming);
+
+	while( indice_sorteado-- > 0 ){
+		codigo_hamming = codigo_hamming->prox;
+	}
+
+	codigo_hamming->tem_erro = TRUE;
+
+	if(codigo_hamming->bit == 0){
+		codigo_hamming->bit = 1;
+	}else{
+		codigo_hamming->bit = 0;
+	}
 
 }
