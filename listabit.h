@@ -4,11 +4,13 @@
 
 struct lista_bits{
 	int bit;
+	int *indice_binario_inv;
 	struct lista_bits *prox;
 };
 
 typedef struct lista_bits listaBits;
 
+int *decimal_para_binario_inv(int numero);
 
 listaBits *criar_listaBits();
 listaBits *adicionar_bit(listaBits * lista, int bit);

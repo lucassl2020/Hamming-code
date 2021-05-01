@@ -11,10 +11,11 @@
 #define DIGITAR_PALAVRA 2
 #define SAIR 0
 
-#define AVALIAR_CODIGO 1
-#define MOSTRAR_PALAVRA 2
-#define MOSTRAR_CODIGO 3
-#define VOLTAR 4
+#define AVALIAR_CODIGO_COM_ERRO 1
+#define CODIGO_SEM_ERRO_AVALIAR 2
+#define MOSTRAR_PALAVRA 3
+#define MOSTRAR_CODIGO 4
+#define VOLTAR 5
 
 
 // Fazer loop pra corrigir todos os erros com hamming
@@ -34,11 +35,10 @@ listaBits *gerar_codigo(listaBits *dado_enviado);
 int segundo_menu();
 
 
-
 int main(){
 
 	listaBits *dado_enviado = criar_listaBits(),
-			  *codigo_hamming = criar_listaBits();
+			*codigo_hamming = criar_listaBits();
 
 	int opcao;
 
@@ -73,8 +73,14 @@ int main(){
 
 				opcao = segundo_menu();
 
-				if(opcao == AVALIAR_CODIGO){
+				if(opcao == AVALIAR_CODIGO_COM_ERRO){
 					
+
+
+				}else if(opcao == CODIGO_SEM_ERRO_AVALIAR){
+
+					
+
 				}else if(opcao == MOSTRAR_PALAVRA){
 
 					printf("Palavra: ");
@@ -94,7 +100,7 @@ int main(){
 			}
 
 		}
-
+  
 	}
 
 	
@@ -180,10 +186,11 @@ int segundo_menu(){
 	int opcao;
 
 	printf("=-=-=-=-=-=-=-=-=-=-=-\n");
-	printf("1 - Avaliar codigo\n");
-	printf("2 - Mostrar palavra\n");
-	printf("3 - Mostrar codigo\n");
-	printf("4 - Voltar\n");
+	printf("1 - Avaliar codigo com erro\n");
+	printf("2 - Avaliar codigo sem erro\n");
+	printf("3 - Mostrar palavra\n");
+	printf("4 - Mostrar codigo\n");
+	printf("5 - Voltar\n");
 	printf("\n");
 	printf("Opcao: "); scanf(" %d", &opcao);
 	printf("\n");
@@ -195,14 +202,18 @@ int segundo_menu(){
 listaBits *gerar_codigo(listaBits *dado_enviado){
 
 	int indice = 1,
-		expoente = 0;
+		expoente = 0,
+		valor_do_x,
+		tam_dado;
 
-	listaBits *codigo_hamming = criar_listaBits();
+	listaBits *codigo_hamming = criar_listaBits(), 
+		*aux;
+
 
 	while(dado_enviado != NULL){
 
 		if(indice == pow(2, expoente)){
-			codigo_hamming = adicionar_bit(codigo_hamming, 2);
+			codigo_hamming = adicionar_bit(codigo_hamming, -1);
 			expoente++;
 		}else{
 			codigo_hamming = adicionar_bit(codigo_hamming, dado_enviado->bit);
@@ -210,6 +221,42 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 		}
 
 		indice++;
+
+	}
+
+	tam_dado = tamanho_listaBits(codigo_hamming);
+	expoente = 0;
+	while(pow(2, expoente) < tam_dado){
+
+		valor_do_x = -1;
+
+		aux = codigo_hamming;
+		while(aux != NULL){
+
+			if(aux->indice_binario_inv[expoente] == 1 && aux->bit != -1){
+				if(valor_do_x == -1){
+					valor_do_x = aux->bit;
+				}else{
+					if(valor_do_x == aux->bit){
+						valor_do_x = 0;
+					}else{
+						valor_do_x = 1;
+					}
+				}
+			}
+
+			aux = aux->prox;
+
+		}
+
+		aux = codigo_hamming;
+		while(aux->bit != -1){
+			aux = aux->prox;
+		}
+
+		aux->bit = valor_do_x;
+
+		expoente++;
 
 	}
 
