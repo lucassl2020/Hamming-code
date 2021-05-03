@@ -1,2 +1,4 @@
 *.o
 main.exe
+avaliador.exe
+gerador.exe

@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "lerPalavra.h"
 
+#define TRUE 1
+#define FALSE 0
+
+
 char *ler_palavra(const char *msg){
 
 	char *palavra = (char *)malloc(sizeof(char));

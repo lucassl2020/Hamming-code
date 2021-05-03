@@ -40,8 +40,6 @@ int main(){
 
 	while(TRUE){
 
-		setbuf(stdin, NULL);
-
 		opcao = primeiro_menu();
 
 		if(opcao == SAIR){
@@ -114,7 +112,6 @@ int main(){
   
 	}
 
-	
 	desalocar_listaBits(dado_enviado);
 	desalocar_listaBits(codigo_hamming);
 
@@ -125,6 +122,8 @@ int main(){
 int primeiro_menu(){
 
 	int opcao;
+
+	setbuf(stdin, NULL);
 
 	printf("=-=-=-=-=-=-=-=-=-=-=-\n");
 	printf("1 - Gerar palavra\n");
@@ -196,6 +195,8 @@ int segundo_menu(){
 
 	int opcao;
 
+	setbuf(stdin, NULL);
+
 	printf("=-=-=-=-=-=-=-=-=-=-=-\n");
 	printf("1 - Avaliar codigo com erro\n");
 	printf("2 - Avaliar codigo sem erro\n");
@@ -215,7 +216,7 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 	int indice = 1,
 		expoente = 0,
 		valor_do_x,
-		tam_dado;
+		tam_codigo;
 
 	listaBits *codigo_hamming = criar_listaBits(), 
 		*aux;
@@ -235,9 +236,9 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 
 	}
 
-	tam_dado = tamanho_listaBits(codigo_hamming);
+	tam_codigo = tamanho_listaBits(codigo_hamming);
 	expoente = 0;
-	while(pow(2, expoente) < tam_dado){
+	while(pow(2, expoente) < tam_codigo){
 
 		valor_do_x = -1;
 
@@ -280,7 +281,7 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 void avaliar_codigo(listaBits *codigo_hamming){
 
 	int expoente = 0,
-		tam_dado = tamanho_listaBits(codigo_hamming),
+		tam_codigo = tamanho_listaBits(codigo_hamming),
 		cont,
 		*indice_erro = NULL,
 		i, 
@@ -288,7 +289,7 @@ void avaliar_codigo(listaBits *codigo_hamming){
 
 	listaBits *aux;
 
-	while(pow(2, expoente) < tam_dado){
+	while(pow(2, expoente) < tam_codigo){
 
 		cont = 0;
 
@@ -323,6 +324,7 @@ void avaliar_codigo(listaBits *codigo_hamming){
 		aux = codigo_hamming;
 		while(aux != NULL){
 			flag = TRUE;
+			
 			for(i=0; i<expoente; i++){
 				if(aux->indice_binario_inv.tamanho > i){
 					if(indice_erro[i] != aux->indice_binario_inv.vetor[i]){
@@ -340,6 +342,7 @@ void avaliar_codigo(listaBits *codigo_hamming){
 			if(flag == TRUE){
 				break;
 			}
+
 			aux = aux->prox;
 		}
 
@@ -348,7 +351,7 @@ void avaliar_codigo(listaBits *codigo_hamming){
 		}else{
 			aux->bit = 0;
 		}
-
+		//Atributo usado apenas na hora de mostrar as informações.
 		aux->tem_erro = FALSE;
 		
 		printf("CODIGO COM ERRO CORRIGIDO:\n");
