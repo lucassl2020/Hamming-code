@@ -1,9 +1,9 @@
-O hamming.c contém os 2 programas integrados. O arquivo executavel dele é o main
+O hamming.c contém os 2 programas integrados.
 
 Como compilar
 	hamming.c
 		gcc -c hamming.c listabit.c lerPalavra.c
-		gcc -o main hamming.o listabit.o lerPalavra.o
+		gcc -o main hamming.o listabit.o lerPalavra.o -lm
 
 Para executar
 	Use o terminal para ir até o diretorio do arquivo 
