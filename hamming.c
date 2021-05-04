@@ -250,11 +250,7 @@ listaBits *gerar_codigo(listaBits *dado_enviado){
 					if(valor_do_x == -1){
 						valor_do_x = aux->bit;
 					}else{
-						if(valor_do_x == aux->bit){
-							valor_do_x = 0;
-						}else{
-							valor_do_x = 1;
-						}
+						valor_do_x = ((!valor_do_x) & aux->bit) | (valor_do_x & (!aux->bit));
 					}
 				}
 			}
@@ -346,11 +342,8 @@ void avaliar_codigo(listaBits *codigo_hamming){
 			aux = aux->prox;
 		}
 
-		if(aux->bit == 0){
-			aux->bit = 1;
-		}else{
-			aux->bit = 0;
-		}
+		aux->bit = !aux->bit;
+
 		//Atributo usado apenas na hora de mostrar as informações.
 		aux->tem_erro = FALSE;
 		
@@ -376,10 +369,6 @@ void inserir_erro_codigo(listaBits *codigo_hamming){
 
 	codigo_hamming->tem_erro = TRUE;
 
-	if(codigo_hamming->bit == 0){
-		codigo_hamming->bit = 1;
-	}else{
-		codigo_hamming->bit = 0;
-	}
+	codigo_hamming->bit = !codigo_hamming->bit;
 
 }

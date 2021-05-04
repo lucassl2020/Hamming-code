@@ -7,9 +7,9 @@ Como compilar
 
 Para executar
 	Use o terminal para ir até o diretorio do arquivo 
-	E digite ./nome_do_executavel
+	E digite ./nome_do_executavel ou sudo chmod 777 nome do arquivo
 	Por exemplo: 
-		./main
+		./main ou sudo chmod 777 main
 
 Quando executado, será mostrado um menu.
 
